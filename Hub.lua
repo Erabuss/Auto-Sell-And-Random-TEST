@@ -181,7 +181,7 @@ rollBtn.MouseButton1Click:Connect(function()
     rollBtn.Text = "🛑 หยุด!"
     rollBtn.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
     
-    local args = { "Dress up my waifu (x1)", 10 }
+    local args = { "Dress up my waifu (x10)", 10 }
     local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Systems"):WaitForChild("Purchased")
 
     task.spawn(function()
