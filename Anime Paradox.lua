@@ -23,9 +23,9 @@ pcall(function() gui.Parent = CoreGui end)
 if not gui.Parent then gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") end
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 370) -- ขยายความสูงให้จุทุกอย่าง
+frame.Size = UDim2.new(0, 220, 0, 370)
 frame.Position = UDim2.new(0, 50, 0, 200)
-frame.BackgroundColor3 = Color3.fromRGB(34, 47, 62)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Active = true
 frame.Draggable = true
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
@@ -34,7 +34,7 @@ frame.Parent = gui
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 35)
 title.BackgroundTransparency = 1
-title.Text = "🎰 Ultimate Farm V.3"
+title.Text = "🎰 Ultimate Farm V.4"
 title.TextColor3 = Color3.fromRGB(0, 216, 214)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 14
@@ -71,7 +71,7 @@ btnJujutsuInf.Size = UDim2.new(0.5, -15, 0, 35)
 btnJujutsuInf.Position = UDim2.new(0.5, 5, 0, 75)
 btnJujutsuInf.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 btnJujutsuInf.TextColor3 = Color3.fromRGB(255, 255, 255)
-btnJujutsuInf.Text = "☠️ Jujutsu Infinty"
+btnJujutsuInf.Text = "☠️ NaN"
 btnJujutsuInf.Font = Enum.Font.GothamBold
 btnJujutsuInf.TextSize = 12
 Instance.new("UICorner", btnJujutsuInf).CornerRadius = UDim.new(0, 6)
@@ -119,7 +119,7 @@ btnSpecialInf.Size = UDim2.new(0.5, -15, 0, 35)
 btnSpecialInf.Position = UDim2.new(0.5, 5, 0, 190)
 btnSpecialInf.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 btnSpecialInf.TextColor3 = Color3.fromRGB(255, 255, 255)
-btnSpecialInf.Text = "☠️ Specia infinity"
+btnSpecialInf.Text = "☠️ NaN"
 btnSpecialInf.Font = Enum.Font.GothamBold
 btnSpecialInf.TextSize = 12
 Instance.new("UICorner", btnSpecialInf).CornerRadius = UDim.new(0, 6)
@@ -158,7 +158,7 @@ Instance.new("UICorner", btnAutoSell).CornerRadius = UDim.new(0, 6)
 btnAutoSell.Parent = frame
 
 -- ==========================================
--- ⚙️ ฟังก์ชันยิงคำสั่งกาชาปกติ
+-- ⚙️ ฟังก์ชันยิงคำสั่งกาชาปกติและออโต้
 -- ==========================================
 local function summonOnce(bannerName, amount)
     task.spawn(function()
@@ -172,9 +172,6 @@ btnJujutsuInf.MouseButton1Click:Connect(function() summonOnce("Jujutsu", 0/0) en
 btnSpecial.MouseButton1Click:Connect(function() summonOnce("Special", tonumber(inputSpecial.Text) or 1) end)
 btnSpecialInf.MouseButton1Click:Connect(function() summonOnce("Special", 0/0) end)
 
--- ==========================================
--- 🚀 ระบบปุ่มออโต้สุ่มกาชา
--- ==========================================
 btnJujutsuAuto.MouseButton1Click:Connect(function()
     getgenv().autoJujutsu = not getgenv().autoJujutsu
     if getgenv().autoJujutsu then
@@ -183,8 +180,7 @@ btnJujutsuAuto.MouseButton1Click:Connect(function()
         task.spawn(function()
             while getgenv().autoJujutsu do
                 local amount = tonumber(inputJujutsu.Text) or 1
-                local args = { "Jujutsu", amount }
-                pcall(function() summonRemote:InvokeServer(unpack(args)) end)
+                pcall(function() summonRemote:InvokeServer(unpack({ "Jujutsu", amount })) end)
                 task.wait(0.2)
             end
         end)
@@ -202,8 +198,7 @@ btnSpecialAuto.MouseButton1Click:Connect(function()
         task.spawn(function()
             while getgenv().autoSpecial do
                 local amount = tonumber(inputSpecial.Text) or 1
-                local args = { "Special", amount }
-                pcall(function() summonRemote:InvokeServer(unpack(args)) end)
+                pcall(function() summonRemote:InvokeServer(unpack({ "Special", amount })) end)
                 task.wait(0.2)
             end
         end)
@@ -214,13 +209,13 @@ btnSpecialAuto.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- 🛒 ระบบออโต้ขาย (Auto Sell)
+-- 🛡️ 🛒 ระบบออโต้ขาย (เกราะป้องกันตัวล็อค)
 -- ==========================================
 btnAutoSell.MouseButton1Click:Connect(function()
     getgenv().autoSellMythic = not getgenv().autoSellMythic
     if getgenv().autoSellMythic then
         btnAutoSell.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-        btnAutoSell.Text = "♻️ เปิดออโต้ขาย..."
+        btnAutoSell.Text = "♻️ เปิดออโต้ขาย (เซฟตี้ 100%)"
         
         task.spawn(function()
             while task.wait(3) do
@@ -236,18 +231,43 @@ btnAutoSell.MouseButton1Click:Connect(function()
                         
                         for _, unit in pairs(unitList:GetChildren()) do
                             if unit:IsA("GuiObject") and string.len(unit.Name) > 30 then
+                                
                                 local rarity = tostring(unit:GetAttribute("Rarity"))
                                 local isShiny = unit:GetAttribute("IsShiny")
+                                local isLocked = false
                                 
-                                if rarity == targetRarity and isShiny ~= true and unit:GetAttribute("Locked") ~= true and unit:GetAttribute("Equipped") ~= true then
+                                -- 🛡️ 1. เช็คจาก Attribute พื้นฐาน (ถ้ามี)
+                                if unit:GetAttribute("Locked") == true or unit:GetAttribute("Equipped") == true then
+                                    isLocked = true
+                                end
+                                
+                                -- 🛡️ 2. เช็คจากไอคอนแม่กุญแจ/เครื่องหมายถูก ที่อยู่ใน UI ย่อย!
+                                -- (เดินสแกนหาลูกๆ ของโฟลเดอร์ตัวละคร ว่ามีอันไหนขึ้นต้นด้วย Lock หรือ Equip ไหม)
+                                for _, child in pairs(unit:GetDescendants()) do
+                                    if child:IsA("ImageLabel") or child:IsA("ImageButton") or child:IsA("BoolValue") then
+                                        local name = string.lower(child.Name)
+                                        if (string.find(name, "lock") or string.find(name, "equip") or string.find(name, "check")) then
+                                            -- ถ้าเจอไอคอนกุญแจ/ติ๊กถูก และมันมองเห็นได้ (Visible) แปลว่าล็อคอยู่!
+                                            if child:IsA("BoolValue") and child.Value == true then
+                                                isLocked = true break
+                                            elseif child.Visible == true then
+                                                isLocked = true break
+                                            end
+                                        end
+                                    end
+                                end
+                                
+                                -- 🎯 ถ้าตรงเงื่อนไข (ระดับ Mythic + ไม่เงา + ไม่ล็อค) ถึงจะขาย!
+                                if rarity == targetRarity and isShiny ~= true and not isLocked then
                                     unitsToSell[unit.Name] = true
                                     sellCount = sellCount + 1
                                 end
+                                
                             end
                         end
                         
                         if sellCount > 0 then
-                            print("🛒 ระบบขาย: เจอ " .. targetRarity .. " " .. sellCount .. " ตัว กำลังขาย...")
+                            print("🛒 ระบบขาย: เจอ " .. targetRarity .. " " .. sellCount .. " ตัว (ข้ามตัวล็อคแล้ว) ทำการขาย...")
                             local args = { "Sold", unitsToSell }
                             pcall(function() sellRemote:FireServer(unpack(args)) end)
                         end
@@ -261,4 +281,4 @@ btnAutoSell.MouseButton1Click:Connect(function()
     end
 end)
 
-print("🎯 โหลด Ultimate Farm สำเร็จ! ครบจบในจอเดียว!")
+print("🎯 โหลด Ultimate Farm (Super Safe) สำเร็จ! ฟาร์มได้อย่างสบายใจ!")
